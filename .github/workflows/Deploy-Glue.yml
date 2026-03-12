@@ -1,0 +1,43 @@
+name: Deploy AWS Glue Jobs
+on:
+  push:
+    branches:
+      - dev
+      - qa
+      - main
+    paths:
+      - "glue.yaml"
+      - "gluecode/*"
+  workflow_dispatch:
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  S3_BUCKET: aws-cft-bucket-pandit-technologies
+  STACK_NAME: dev-glue-stack
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Package Glue scripts
+        run: |
+          rm -rf dist
+          mkdir dist
+          cp gluecode/*.py dist/
+      - name: Upload Glue scripts to S3
+        run: |
+          aws s3 sync dist/ s3://${S3_BUCKET}/code/
+      - name: Deploy Glue CloudFormation stack
+        run: |
+          aws cloudformation deploy \
+            --template-file glue.yaml \
+            --stack-name $STACK_NAME \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameter-overrides \
+              GlueScriptBucket=${S3_BUCKET}
