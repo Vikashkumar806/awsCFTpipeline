@@ -3,21 +3,22 @@ on:
   push:
     branches:
       - dev
+      - qa
+      - main
     paths:
       - "glue.yaml"
-      - "cloudformation-glue.yml"
-      - "glue_code/*"
+      - "gluecode/*"
   workflow_dispatch:
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
-  S3_BUCKET: dev-hello-aws-cicd-bucket
+  S3_BUCKET: aws-cft-bucket-pandit-technologies
   STACK_NAME: dev-glue-stack
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -28,10 +29,10 @@ jobs:
         run: |
           rm -rf dist
           mkdir dist
-          cp glue_code/*.py dist/
+          cp gluecode/*.py dist/
       - name: Upload Glue scripts to S3
         run: |
-          aws s3 sync dist/ s3://${S3_BUCKET}/glue_code/
+          aws s3 sync dist/ s3://${S3_BUCKET}/code/
       - name: Deploy Glue CloudFormation stack
         run: |
           aws cloudformation deploy \

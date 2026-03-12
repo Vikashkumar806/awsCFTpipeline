@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Deploy AWS Glue Jobs
+
+Parameters:
+
+  GlueScriptBucket:
+
+    Type: String
+
+Resources:
+
+  FirstGlueJob:
+
+    Type: AWS::Glue::Job
+
+    Properties:
+
+      Name: dev-first-glue-job
+
+      Role: arn:aws:iam::332281781429:role/AWSGluerole
+
+      Command:
+
+        Name: glueetl
+
+        PythonVersion: 3
+
+        ScriptLocation: !Sub s3://${GlueScriptBucket}/glue_code/snowflaketos3.py
+
+      DefaultArguments:
+
+        "--job-language": "python"
+
+      GlueVersion: "4.0"
+
+      WorkerType: G.2X
+
+      NumberOfWorkers: 2
+
+      Timeout: 10
+ 
