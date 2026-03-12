@@ -18,7 +18,7 @@ Resources:
 
       Name: dev-first-glue-job
 
-      Role: arn:aws:iam::332281781429:role/AWSGluerole
+      Role: arn:aws:iam::780573891683:role/snowflkaetoS3GlueRole
 
       Command:
 
